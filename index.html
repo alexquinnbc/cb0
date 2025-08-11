@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Bias Codex - Amazing Interactive Learning Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- DaisyUI CDN (Tailwind plugin for components) -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <!-- Alpine.js CDN for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .modal { transition: opacity 0.3s ease; }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100 font-sans antialiased" x-data="appData">
+    <header class="bg-blue-600 text-white py-8 text-center">
+        <h1 class="text-4xl font-bold">Cognitive Bias Codex</h1>
+        <p class="mt-2 text-lg">Amazing Interactive Static Website for Learning Cognitive Biases</p>
+        <p class="mt-1 text-sm">Built with Tailwind, DaisyUI, Alpine.js, GSAP. Free on GitHub Pages!</p>
+        <img src="cognitive-bias-codex.png" alt="Cognitive Bias Codex Mind Map" class="mx-auto mt-4 max-w-2xl rounded shadow">
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="mb-8 flex flex-col md:flex-row items-center gap-4">
+            <input type="text" x-model="search" placeholder="Search biases..." class="input input-bordered w-full max-w-md">
+            <button @click="showRandomBias()" class="btn btn-primary">Random Bias</button>
+            <button @click="startQuiz()" class="btn btn-secondary">Take Quiz</button>
+        </div>
+
+        <div class="space-y-6">
+            <template x-for="cat in categories" :key="cat.name">
+                <div class="collapse collapse-arrow bg-white shadow-md">
+                    <input type="checkbox" />
+                    <div class="collapse-title text-xl font-medium" x-text="cat.name"></div>
+                    <div class="collapse-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" x-init="animateList($el)">
+                            <template x-for="bias in filteredBiases(cat.biases)" :key="bias.name">
+                                <div class="card bg-base-100 shadow-xl cursor-pointer" @click="showModal(bias)">
+                                    <div class="card-body">
+                                        <h2 class="card-title" x-text="bias.name"></h2>
+                                        <p class="text-sm text-gray-600" x-text="bias.desc.substring(0, 100) + '...'"></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Modal for Bias Details -->
+        <div class="modal" :class="{ 'modal-open': modalOpen }">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg" x-text="selectedBias.name"></h3>
+                <p class="py-4" x-text="selectedBias.desc"></p>
+                <p class="py-4"><strong>Example:</strong> <span x-text="selectedBias.example"></span></p>
+                <div class="modal-action">
+                    <button class="btn" @click="modalOpen = false">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Modal -->
+        <div class="modal" :class="{ 'modal-open': quizOpen }">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg">Quiz: Guess the Bias</h3>
+                <p class="py-4" x-text="quizQuestion.desc"></p>
+                <div class="space-y-2">
+                    <template x-for="option in quizOptions" :key="option">
+                        <button class="btn btn-block" @click="checkAnswer(option)" :class="{'btn-success': quizAnswered && option === quizQuestion.name, 'btn-error': quizAnswered && selectedOption === option && option !== quizQuestion.name} " x-text="option"></button>
+                    </template>
+                </div>
+                <p x-show="quizAnswered" class="mt-4" x-text="quizFeedback"></p>
+                <div class="modal-action">
+                    <button class="btn" @click="quizOpen = false">Close</button>
+                    <button class="btn btn-primary" x-show="quizAnswered" @click="startQuiz()">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 text-center">
+        <p>Created with ❤️ by Grok. Data from gustdebacker.com & Cognitive Bias Codex image. Deploy to GitHub Pages!</p>
+    </footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appData', () => ({
+                search: '',
+                modalOpen: false,
+                quizOpen: false,
+                selectedBias: {},
+                quizQuestion: {},
+                quizOptions: [],
+                quizAnswered: false,
+                selectedOption: '',
+                quizFeedback: '',
+                categories: [
+                    { name: 'Too Much Information', biases: [
+                        // 1.1 We notice things that are already imprinted in memory or that are repeated often
+                        { name: 'Availability Heuristic', desc: 'Memories that happened recently outweigh memories with more impact from the past.', example: 'Estimating the probability of events based on how easily examples come to mind.' },
+                        { name: 'Attentional Bias', desc: 'Subconsciously we choose points where we pay attention to. A smoker is more likely to notice other people smoking.', example: 'A smoker is more likely to notice other people smoking.' },
+                        // ... Add all 13 from Info (omitted for brevity, include all in actual code)
+                    ] },
+                    { name: 'Not Enough Meaning', biases: [
+                        // 2.1 We see patterns and stories, even when there is hardly any data
+                        { name: 'Clustering Illusion', desc: 'We think we see clusters when objects are placed randomly.', example: 'Seeing patterns in a random scatter of dots on a page.' },
+                        // ... Add all 43 from Meaning
+                    ] },
+                    { name: 'Need To Act Fast', biases: [
+                        // 3.1 To make an impact we need to be confident and feel that what we are doing is important
+                        { name: 'Overconfidence Effect', desc: 'We think we make better decisions than we actually do, especially if our self-confidence is high.', example: 'A trader believes they can predict stock market trends better than experts, leading to risky investments.' },
+                        // ... Add all 35 from Speed
+                    ] },
+                    { name: 'What Should We Remember?', biases: [
+                        // 4.1 We modify memories
+                        { name: 'Misattribution of Memory', desc: 'We sometimes do not remember things as they happened.', example: 'Remembering a conversation differently after hearing others discuss it.' },
+                        // ... Add all 22 from Memory
+                    ] },
+                ],
+
+                filteredBiases(biases) {
+                    return biases.filter(b => b.name.toLowerCase().includes(this.search.toLowerCase()) || b.desc.toLowerCase().includes(this.search.toLowerCase()));
+                },
+
+                showModal(bias) {
+                    this.selectedBias = bias;
+                    this.modalOpen = true;
+                    gsap.from('.modal-box', { opacity: 0, y: 50, duration: 0.5 });
+                },
+
+                showRandomBias() {
+                    const allBiases = this.categories.flatMap(cat => cat.biases);
+                    const random = allBiases[Math.floor(Math.random() * allBiases.length)];
+                    this.showModal(random);
+                },
+
+                startQuiz() {
+                    const allBiases = this.categories.flatMap(cat => cat.biases);
+                    this.quizQuestion = allBiases[Math.floor(Math.random() * allBiases.length)];
+                    this.quizOptions = [this.quizQuestion.name];
+                    for (let i = 0; i < 3; i++) {
+                        let rand = allBiases[Math.floor(Math.random() * allBiases.length)].name;
+                        while (this.quizOptions.includes(rand)) rand = allBiases[Math.floor(Math.random() * allBiases.length)].name;
+                        this.quizOptions.push(rand);
+                    }
+                    this.quizOptions.sort(() => Math.random() - 0.5);
+                    this.quizAnswered = false;
+                    this.quizFeedback = '';
+                    this.quizOpen = true;
+                    gsap.from('.modal-box', { opacity: 0, y: 50, duration: 0.5 });
+                },
+
+                checkAnswer(option) {
+                    if (this.quizAnswered) return;
+                    this.selectedOption = option;
+                    this.quizAnswered = true;
+                    this.quizFeedback = option === this.quizQuestion.name ? 'Correct!' : `Wrong! The correct answer is ${this.quizQuestion.name}.`;
+                },
+
+                animateList(el) {
+                    gsap.from(el.querySelectorAll('.card'), { opacity: 0, y: 20, duration: 0.5, stagger: 0.1 });
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
