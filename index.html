@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cognitive Bias Codex</title>
+
+  <!-- Tailwind CSS & DaisyUI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      plugins: [daisyui],
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    #codex {
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+  <!-- HEADER -->
+  <header class="text-center py-10">
+    <h1 class="text-4xl font-bold mb-2">The Cognitive Bias Codex</h1>
+    <p class="text-lg text-gray-300">Learn about biases and fallacies interactively</p>
+  </header>
+
+  <!-- SECTION 1: Diagram -->
+  <section class="flex flex-col items-center mb-20">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/65/Cognitive_bias_codex_en.svg" alt="Cognitive Bias Codex" id="codex" class="max-w-lg cursor-pointer shadow-lg transition-transform duration-500 hover:scale-105" />
+    <p class="mt-4 text-gray-400 text-center">Click a section to explore its biases</p>
+  </section>
+
+  <!-- SECTION 2: Cards -->
+  <section id="bias-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 mb-20"></section>
+
+  <!-- QUIZ SECTION -->
+  <section class="px-6 py-12 bg-gray-800 rounded-xl max-w-4xl mx-auto mb-20">
+    <h2 class="text-2xl font-bold mb-4">Quick Quiz</h2>
+    <p class="mb-4">Test your knowledge of cognitive biases:</p>
+    <div id="quiz"></div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="text-center py-6 text-gray-500">
+    Built with Tailwind, DaisyUI, and GSAP • Hosted on GitHub Pages
+  </footer>
+
+  <script>
+    // Bias data
+    const biases = [
+      { category: "Too Much Information", name: "Anchoring Bias", description: "We rely too heavily on the first piece of information we receive." },
+      { category: "Need to Act Fast", name: "Sunk Cost Fallacy", description: "We continue an endeavor once we've invested money, effort, or time." },
+      { category: "Not Enough Meaning", name: "Confirmation Bias", description: "We favor information that confirms our existing beliefs." },
+      { category: "What Should We Remember?", name: "Hindsight Bias", description: "We see events as more predictable after they happen." }
+    ];
+
+    // Populate cards
+    const cardContainer = document.getElementById("bias-cards");
+    biases.forEach(bias => {
+      const card = document.createElement("div");
+      card.className = "card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow";
+      card.innerHTML = `
+        <div class="card-body">
+          <h2 class="card-title">${bias.name}</h2>
+          <p class="text-sm text-gray-400">${bias.category}</p>
+          <p>${bias.description}</p>
+        </div>
+      `;
+      cardContainer.appendChild(card);
+    });
+
+    // GSAP animations
+    gsap.from("header", { opacity: 0, y: -50, duration: 1 });
+    gsap.from("#codex", { opacity: 0, scale: 0.8, duration: 1, delay: 0.5 });
+    gsap.from("#bias-cards .card", {
+      scrollTrigger: {
+        trigger: "#bias-cards",
+        start: "top 80%",
+      },
+      opacity: 0,
+      y: 50,
+      duration: 0.6,
+      stagger: 0.2
+    });
+
+    // Simple quiz
+    document.getElementById("quiz").innerHTML = `
+      <p>Which bias is about sticking with something because you've already invested in it?</p>
+      <button class="btn btn-sm btn-outline mt-2" onclick="alert('Correct!')">Sunk Cost Fallacy</button>
+      <button class="btn btn-sm btn-outline mt-2" onclick="alert('Try again!')">Anchoring Bias</button>
+    `;
+  </script>
+
+</body>
+</html>
