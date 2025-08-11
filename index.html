@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cognitive Bias Codex — Interactive</title>
+
+  <!-- Tailwind CSS (CDN, no build) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    /* wrapper for image so hotspots position relative to it */
+    #codexWrap { width: min(960px, 94%); max-width: 920px; margin: 0 auto; position: relative; }
+    #codexImg { width: 100%; display:block; border-radius: 12px; transform-origin: center center; }
+
+    /* hotspot style */
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.95), rgba(6,95,70,0.95));
+      box-shadow: 0 6px 18px rgba(6,95,70,0.35);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 6;
+      outline: 2px solid rgba(255,255,255,0.03);
+    }
+    /* tooltip using attr(data-label) */
+    .hotspot::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 130%;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px) scale(.98);
+      background: rgba(0,0,0,0.78);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .18s ease;
+      z-index: 8;
+    }
+    .hotspot:hover::after { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+
+    /* modal */
+    .modal-overlay {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: rgba(2,6,23,0.6); z-index: 40; padding: 28px;
+    }
+    .modal-card { width: min(860px, 96%); max-height: 86vh; overflow: auto; border-radius: 12px; }
+    /* subtle card shadow */
+    .card-shadow { box-shadow: 0 20px 60px rgba(2,6,23,0.7); }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans">
+
+  <header class="text-center py-10 px-4">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">The Cognitive Bias Codex</h1>
+    <p class="mt-2 text-slate-300 max-w-2xl mx-auto">Explore common cognitive biases and fallacies — click hotspots on the diagram, open cards, and practice with a quick quiz.</p>
+  </header>
+
+  <!-- Diagram area -->
+  <main class="mb-12">
+    <section id="codexWrap" class="mx-auto mb-6">
+      <!-- Image -->
+      <img id="codexImg" src="https://upload.wikimedia.org/wikipedia/commons/6/65/Cognitive_bias_codex_en.svg" alt="Cognitive Bias Codex" />
+      <!-- hotspots will be injected here -->
+    </section>
+
+    <div class="text-center mb-6">
+      <p class="text-slate-400">Click a dot to learn more. Hover for labels.</p>
+    </div>
+
+    <!-- Cards: grid -->
+    <section id="bias-cards" class="px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <!-- cards rendered by JS -->
+    </section>
+  </main>
+
+  <!-- Quiz -->
+  <section class="max-w-4xl mx-auto mb-16 px-4">
+    <div class="bg-slate-800 rounded-xl p-6 card-shadow">
+      <h2 class="text-2xl font-semibold mb-2">Quick quiz</h2>
+      <p class="text-slate-300 mb-4">Choose the best answer to reinforce learning.</p>
+      <div id="quizArea"></div>
+      <div id="quizResult" class="mt-4 text-lg"></div>
+    </div>
+  </section>
+
+  <footer class="text-center text-slate-500 pb-12">
+    Built with Tailwind + GSAP — Deploy on GitHub Pages
+  </footer>
+
+  <!-- modal skeleton (hidden) -->
+  <div id="modalOverlay" class="hidden" aria-hidden="true">
+    <div id="modalCard" class="modal-card bg-white text-slate-900 p-6 modal-card card-shadow rounded-xl">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 id="modalTitle" class="text-2xl font-bold"></h3>
+          <p id="modalCategory" class="text-sm text-slate-500 mt-1"></p>
+        </div>
+        <button id="modalClose" class="ml-4 text-slate-600 hover:text-slate-900" aria-label="Close">✕</button>
+      </div>
+      <hr class="my-4" />
+      <div id="modalBody" class="prose prose-slate max-w-none"></div>
+      <div class="mt-6 flex gap-3">
+        <button id="modalPrev
